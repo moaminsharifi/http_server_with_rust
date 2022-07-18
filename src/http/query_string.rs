@@ -2,17 +2,16 @@ use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct QueryString<'buf> {
-    data:HashMap<&'buf str, Value<'buf>>
-} 
+    data: HashMap<&'buf str, Value<'buf>>,
+}
 #[derive(Debug)]
 pub enum Value<'buf> {
     Single(&'buf str),
     Multiple(Vec<&'buf str>),
 }
 impl<'buf> QueryString<'buf> {
-    pub fn get(&self, key:&str)-> Option<&Value>{
+    pub fn get(&self, key: &str) -> Option<&Value> {
         self.data.get(key)
-
     }
 }
 impl<'buf> From<&'buf str> for QueryString<'buf> {
@@ -24,19 +23,15 @@ impl<'buf> From<&'buf str> for QueryString<'buf> {
             let mut val = "";
             if let Some(i) = s.find('=') {
                 key = &sub_str[..i];
-                val = &sub_str[i+1..];
+                val = &sub_str[i + 1..];
             }
-            data.entry(key).and_modify(|existing: &mut Value| match existing{
-                Value::Single(pre_val) => {
-                    *existing = Value::Multiple(vec![pre_val, val])
-                  
-                }, 
-                Value::Multiple(vec) => vec.push(val)
-
-            })
-            .or_insert(Value::Single(val));
+            data.entry(key)
+                .and_modify(|existing: &mut Value| match existing {
+                    Value::Single(pre_val) => *existing = Value::Multiple(vec![pre_val, val]),
+                    Value::Multiple(vec) => vec.push(val),
+                })
+                .or_insert(Value::Single(val));
         }
-        QueryString{data}
-        
+        QueryString { data }
     }
 }
